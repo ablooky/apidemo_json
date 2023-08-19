@@ -86,3 +86,17 @@ retrieve_product_list<-function(ids,user, pw,search_type = 'upc'){
 product_list<-openxlsx::read.xlsx('products.xlsx')
 skus<-na.omit(product_list$SKUs)
 upcs<-as.numeric(na.omit(product_list$UPCs))
+
+
+
+#output
+catalogue_upc<-retrieve_product_list(upcs,user,pw,'upc')
+catalogue_sku<-retrieve_product_list(skus,user,pw,'sku')
+product_information<-bind_rows(catalogue_sku[[1]],catalogue_upc[[1]])
+missing_products<-bind_rows(catalogue_sku[[2]],catalogue_upc[[2]])
+catalogue<-list('Product Information' = product_information,
+                'Products Not Retrieved' = missing_products)
+#Store results
+saveRDS(catalogue,'catalogue.RDS')
+openxlsx::write.xlsx(catalogue,paste0(Sys.time(),'_APIProductSearchResults.xlsx'))
+
